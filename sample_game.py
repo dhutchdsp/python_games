@@ -9,6 +9,8 @@ wave_counter = 0.0
 clock = pygame.time.Clock()
 
 FPS = 60
+RESPAWN_TIME_SEC = 2
+RESPAWN_COUNTER_TICKS = FPS * RESPAWN_TIME_SEC
 
 # Import pygame.locals for easier access to key coordinates
 # Updated to conform to flake8 and black standards
@@ -34,31 +36,47 @@ class Player(pygame.sprite.Sprite):
         self.surf = pygame.Surface((75, 25))
         self.surf.fill((255, 255, 255))
         self.rect = self.surf.get_rect()
+        self.respawn_timer = 0
+        self.dead = False
 
     # Move the sprite based on user keypresses
     def update(self, pressed_keys):
-        if pressed_keys[K_UP]:
-            self.rect.move_ip(0, -5)
-        if pressed_keys[K_DOWN]:
-            self.rect.move_ip(0, 5)
-        if pressed_keys[K_LEFT]:
-            self.rect.move_ip(-5, 0)
-        if pressed_keys[K_RIGHT]:
-            self.rect.move_ip(5, 0)
+        if self.dead:
+            self.respawn_timer += 1
+            if self.respawn_timer >= RESPAWN_COUNTER_TICKS:
+                self.respawn()
+        else:
+            if pressed_keys[K_UP]:
+                self.rect.move_ip(0, -5)
+            if pressed_keys[K_DOWN]:
+                self.rect.move_ip(0, 5)
+            if pressed_keys[K_LEFT]:
+                self.rect.move_ip(-5, 0)
+            if pressed_keys[K_RIGHT]:
+                self.rect.move_ip(5, 0)
 
-        # Keep player on the screen
-        if self.rect.left < 0:
-            self.rect.left = 0
-        if self.rect.right > SCREEN_WIDTH:
-            self.rect.right = SCREEN_WIDTH
-        if self.rect.top <= 0:
-            self.rect.top = 0
-        if self.rect.bottom >= SCREEN_HEIGHT:
-            self.rect.bottom = SCREEN_HEIGHT
+            # Keep player on the screen
+            if self.rect.left < 0:
+                self.rect.left = 0
+            if self.rect.right > SCREEN_WIDTH:
+                self.rect.right = SCREEN_WIDTH
+            if self.rect.top <= 0:
+                self.rect.top = 0
+            if self.rect.bottom >= SCREEN_HEIGHT:
+                self.rect.bottom = SCREEN_HEIGHT
 
     def respawn(self):
+        self.surf.fill((255, 255, 255))
         self.rect.left = 0
         self.rect.top = 0
+        self.dead = False
+        self.respawn_timer = 0
+
+    def die(self):
+        self.surf.fill((255, 0, 0))
+        self.dead = True
+
+
 
 
 # Initialize pygame
@@ -116,6 +134,17 @@ while running:
     # Math counter update
     wave_counter += .1
     wave = math.sin(wave_counter)
+    pressed_keys = pygame.key.get_pressed()
+
+    # Player Actions
+    
+    # Get the set of keys pressed and check for user input
+    player.update(pressed_keys)
+
+    # Check if any enemies have collided with the player
+    if pygame.sprite.spritecollideany(player, enemies) and not player.dead:
+        # If so, then remove the player and stop the loop
+        player.die()
 
     # for loop through the event queue
     for event in pygame.event.get():
@@ -134,10 +163,6 @@ while running:
             new_enemy = Enemy()
             enemies.add(new_enemy)
             all_sprites.add(new_enemy)
-
-    # Get the set of keys pressed and check for user input
-    pressed_keys = pygame.key.get_pressed()
-    player.update(pressed_keys)
     
     # Update enemy position
     enemies.update()
@@ -149,10 +174,7 @@ while running:
     for entity in all_sprites:
         screen.blit(entity.surf, entity.rect)
 
-    # Check if any enemies have collided with the player
-    if pygame.sprite.spritecollideany(player, enemies):
-        # If so, then remove the player and stop the loop
-        player.respawn()
+
 
     # Update the display
     pygame.display.flip()
