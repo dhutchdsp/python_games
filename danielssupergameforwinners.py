@@ -14,8 +14,12 @@ RESPAWN_TIME_SEC = 2
 RESPAWN_COUNTER_TICKS = FPS * RESPAWN_TIME_SEC
 
 LEVEL_FONT_SIZE = 96
+TITLE_FONT_SIZE = 40
 
-LEVEL_TIME_MS = 10000
+LEVEL_TIME_MS = 5000
+LEVEL_LEAD_UP_MS = LEVEL_TIME_MS // 4
+LEVEL_CLEAN_UP_MS = LEVEL_TIME_MS // 4
+LEVEL_TIME_WHERE_ENEMIES_ARE_ON = (LEVEL_TIME_MS - LEVEL_LEAD_UP_MS) - LEVEL_CLEAN_UP_MS
 
 # Import pygame.locals for easier access to key coordinates
 # Updated to conform to flake8 and black standards
@@ -56,6 +60,15 @@ e_level_color = [
     PURPLE,
     GREY,
     RED_GREEN,
+    RED,
+    RED,
+    RED,
+    RED,
+    RED,
+    RED,
+    RED,
+    RED,
+    RED,
     RED,
     RED,
     RED,
@@ -175,6 +188,9 @@ t0 = time.time()
 font = pygame.font.SysFont(None, LEVEL_FONT_SIZE)
 img = font.render("Level: " + str(difficulty_level), True, e_level_color[difficulty_level])
 
+title_font = pygame.font.SysFont(None, TITLE_FONT_SIZE)
+title = font.render("Daniel's Super Game For Winners", True, WHITE)
+
 # Variable to keep the main loop running
 running = True
 
@@ -245,7 +261,7 @@ while running:
         elif event.type == ENEMIES_WILL_TURN_ON:
             spawn_enemies = True
             pygame.time.set_timer(ENEMIES_WILL_TURN_ON, 0)
-            pygame.time.set_timer(ENEMIES_WILL_TURN_OFF, LEVEL_TIME_MS // 3)
+            pygame.time.set_timer(ENEMIES_WILL_TURN_OFF, LEVEL_TIME_WHERE_ENEMIES_ARE_ON)
 
         elif event.type == ENEMIES_WILL_TURN_OFF:
             spawn_enemies = False
@@ -261,6 +277,7 @@ while running:
     for entity in all_sprites:
         screen.blit(entity.surf, entity.rect)
     screen.blit(img, (SCREEN_WIDTH - (3 * LEVEL_FONT_SIZE), 20))
+    screen.blit(title, (0, SCREEN_HEIGHT - (2*TITLE_FONT_SIZE)))
 
     # Update the display
     pygame.display.flip()

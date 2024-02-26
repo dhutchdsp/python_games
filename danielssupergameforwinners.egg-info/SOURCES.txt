@@ -1,0 +1,8 @@
+LICENSE
+README.md
+pyproject.toml
+setup.py
+danielssupergameforwinners.egg-info/PKG-INFO
+danielssupergameforwinners.egg-info/SOURCES.txt
+danielssupergameforwinners.egg-info/dependency_links.txt
+danielssupergameforwinners.egg-info/top_level.txt
