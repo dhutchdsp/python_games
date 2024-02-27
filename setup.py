@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 setup(
 name='danielssupergameforwinners',
-version='0.1.1',
+version='0.1.2',
 author='Daniel Hutchings',
 author_email='thewakemaster@gmail.com',
 description='The bestest game in the whole world.',

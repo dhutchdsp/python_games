@@ -79,14 +79,26 @@ e_level_color = [
 # Initialize pygame
 pygame.init()
 
+# Create the screen object
+# The size is determined by the constant SCREEN_WIDTH and SCREEN_HEIGHT
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+
+# Player Image
+DEFAULT_IMAGE_SIZE = (100, 100)
+# Load image
+#player_image = pygame.image.load("images/WinstonForGame.jpg").convert()
+image = pygame.image.load('images/WinstonSquare.png')
+image_resized = pygame.transform.scale(image, DEFAULT_IMAGE_SIZE)
+
 # Define a player object by extending pygame.sprite.Sprite
 # The surface drawn on the screen is now an attribute of 'player'
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super(Player, self).__init__()
-        self.surf = pygame.Surface((75, 25))
-        self.surf.fill((255, 255, 255))
+        self.surf = image_resized
+        #self.surf.fill((255, 255, 255))
         self.rect = self.surf.get_rect()
+        #self.rect = player_image
         self.dead = False
 
     # Move the sprite based on user keypresses
@@ -113,13 +125,13 @@ class Player(pygame.sprite.Sprite):
             
 
     def respawn(self):
-        self.surf.fill((255, 255, 255))
+        #self.surf.fill((255, 255, 255))
         self.rect.left = 0
         self.rect.top = 0
         self.dead = False
 
     def die(self):
-        self.surf.fill((255, 0, 0))
+        #self.surf.fill((255, 0, 0))
         self.dead = True
 
 
@@ -149,9 +161,7 @@ class Enemy(pygame.sprite.Sprite):
         if self.rect.right < 0:
             self.kill()
 
-# Create the screen object
-# The size is determined by the constant SCREEN_WIDTH and SCREEN_HEIGHT
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+
 
 spawn_enemies = False
 
@@ -186,10 +196,12 @@ all_sprites.add(player)
 # Difficulty Text
 t0 = time.time()
 font = pygame.font.SysFont(None, LEVEL_FONT_SIZE)
-img = font.render("Level: " + str(difficulty_level), True, e_level_color[difficulty_level])
+level_string = font.render("Level: " + str(difficulty_level), True, e_level_color[difficulty_level])
 
 title_font = pygame.font.SysFont(None, TITLE_FONT_SIZE)
 title = font.render("Daniel's Super Game For Winners", True, WHITE)
+
+
 
 # Variable to keep the main loop running
 running = True
@@ -243,7 +255,7 @@ while running:
         elif event.type == LEVELUP:
             if not player.dead:
                 difficulty_level += 1
-                img = font.render("Level: " + str(difficulty_level), True, e_level_color[difficulty_level])
+                level_string = font.render("Level: " + str(difficulty_level), True, e_level_color[difficulty_level])
                 pygame.time.set_timer(ADDENEMY, 500 // difficulty_level + 1)
                 spawn_enemies = False
                 pygame.time.set_timer(ENEMIES_WILL_TURN_ON, LEVEL_TIME_MS // 3)
@@ -256,7 +268,7 @@ while running:
             pygame.time.set_timer(ENEMIES_WILL_TURN_ON, LEVEL_TIME_MS // 3)
             pygame.time.set_timer(ADDENEMY, 500)
             difficulty_level = 0
-            img = font.render("Level: " + str(difficulty_level), True, e_level_color[difficulty_level])
+            level_string = font.render("Level: " + str(difficulty_level), True, e_level_color[difficulty_level])
 
         elif event.type == ENEMIES_WILL_TURN_ON:
             spawn_enemies = True
@@ -276,7 +288,7 @@ while running:
     # Draw all sprites
     for entity in all_sprites:
         screen.blit(entity.surf, entity.rect)
-    screen.blit(img, (SCREEN_WIDTH - (3 * LEVEL_FONT_SIZE), 20))
+    screen.blit(level_string, (SCREEN_WIDTH - (3 * LEVEL_FONT_SIZE), 20))
     screen.blit(title, (0, SCREEN_HEIGHT - (2*TITLE_FONT_SIZE)))
 
     # Update the display
